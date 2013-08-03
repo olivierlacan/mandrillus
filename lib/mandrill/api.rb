@@ -849,6 +849,11 @@ module Mandrill
         #                 - [String] ua the email client or browser data of the click
         #         - [String] state sending status of this message: sent, bounced, rejected
         #         - [Hash] metadata any custom metadata provided when the message was sent
+        #     - [Array] smtp_events a log of up to 3 smtp events for the message
+        #         - [Hash] smtp_events[] information about a specific smtp event
+        #             - [Integer] ts the Unix timestamp when the event occured
+        #             - [String] type the message's state as a result of this event
+        #             - [String] diag the SMTP response from the recipient's server
         def search(query='*', date_from=nil, date_to=nil, tags=nil, senders=nil, limit=100)
             _params = {:query => query, :date_from => date_from, :date_to => date_to, :tags => tags, :senders => senders, :limit => limit}
             return @master.call 'messages/search', _params
@@ -906,6 +911,11 @@ module Mandrill
         #             - [String] ua the email client or browser data of the click
         #     - [String] state sending status of this message: sent, bounced, rejected
         #     - [Hash] metadata any custom metadata provided when the message was sent
+        #     - [Array] smtp_events a log of up to 3 smtp events for the message
+        #         - [Hash] smtp_events[] information about a specific smtp event
+        #             - [Integer] ts the Unix timestamp when the event occured
+        #             - [String] type the message's state as a result of this event
+        #             - [String] diag the SMTP response from the recipient's server
         def info(id)
             _params = {:id => id}
             return @master.call 'messages/info', _params
