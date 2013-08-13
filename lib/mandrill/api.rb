@@ -697,6 +697,7 @@ module Mandrill
         #     - [String] bcc_address an optional address to receive an exact copy of each recipient's email
         #     - [String] tracking_domain a custom domain to use for tracking opens and clicks instead of mandrillapp.com
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
+        #     - [String] return_path_domain a custom domain to use for the messages's return-path
         #     - [Boolean] merge whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
         #     - [Array] global_merge_vars global merge variables to use for all recipients. You can override these per recipient.
         #         - [Hash] global_merge_vars[] a single global merge variable
@@ -770,6 +771,7 @@ module Mandrill
         #     - [String] bcc_address an optional address to receive an exact copy of each recipient's email
         #     - [String] tracking_domain a custom domain to use for tracking opens and clicks instead of mandrillapp.com
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
+        #     - [String] return_path_domain a custom domain to use for the messages's return-path
         #     - [Boolean] merge whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
         #     - [Array] global_merge_vars global merge variables to use for all recipients. You can override these per recipient.
         #         - [Hash] global_merge_vars[] a single global merge variable
@@ -959,14 +961,15 @@ module Mandrill
         # @param [Boolean] async enable a background sending mode that is optimized for bulk sending. In async mode, messages/sendRaw will immediately return a status of "queued" for every recipient. To handle rejections when sending in async mode, set up a webhook for the 'reject' event. Defaults to false for messages with no more than 10 recipients; messages with more than 10 recipients are always sent asynchronously, regardless of the value of async.
         # @param [String] ip_pool the name of the dedicated ip pool that should be used to send the message. If you do not have any dedicated IPs, this parameter has no effect. If you specify a pool that does not exist, your default pool will be used instead.
         # @param [String] send_at when this message should be sent as a UTC timestamp in YYYY-MM-DD HH:MM:SS format. If you specify a time in the past, the message will be sent immediately.
+        # @param [String] return_path_domain a custom domain to use for the messages's return-path
         # @return [Array] of structs for each recipient containing the key "email" with the email address and "status" as either "sent", "queued", or "rejected"
         #     - [Hash] return[] the sending results for a single recipient
         #         - [String] email the email address of the recipient
         #         - [String] status the sending status of the recipient - either "sent", "queued", "scheduled", "rejected", or "invalid"
         #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected"
         #         - [String] _id the message's unique id
-        def send_raw(raw_message, from_email=nil, from_name=nil, to=nil, async=false, ip_pool=nil, send_at=nil)
-            _params = {:raw_message => raw_message, :from_email => from_email, :from_name => from_name, :to => to, :async => async, :ip_pool => ip_pool, :send_at => send_at}
+        def send_raw(raw_message, from_email=nil, from_name=nil, to=nil, async=false, ip_pool=nil, send_at=nil, return_path_domain=nil)
+            _params = {:raw_message => raw_message, :from_email => from_email, :from_name => from_name, :to => to, :async => async, :ip_pool => ip_pool, :send_at => send_at, :return_path_domain => return_path_domain}
             return @master.call 'messages/send-raw', _params
         end
 
