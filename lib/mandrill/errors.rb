@@ -7,6 +7,8 @@ module Mandrill
     end
     class PaymentRequiredError < Error
     end
+    class UnknownSubaccountError < Error
+    end
     class UnknownTemplateError < Error
     end
     class ServiceUnavailableError < Error

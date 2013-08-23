@@ -55,6 +55,7 @@ module Mandrill
                 'ValidationError' => ValidationError,
                 'Invalid_Key' => InvalidKeyError,
                 'PaymentRequired' => PaymentRequiredError,
+                'Unknown_Subaccount' => UnknownSubaccountError,
                 'Unknown_Template' => UnknownTemplateError,
                 'ServiceUnavailable' => ServiceUnavailableError,
                 'Unknown_Message' => UnknownMessageError,
@@ -109,6 +110,9 @@ module Mandrill
         end
         def internal()
             Internal.new self
+        end
+        def subaccounts()
+            Subaccounts.new self
         end
         def urls()
             Urls.new self
