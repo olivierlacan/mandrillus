@@ -274,6 +274,8 @@ module Mandrill
         #     - [String] senders[] a sender address
         # @param [Array] states an array of states to narrow the export to; messages with ANY of the states will be included
         #     - [String] states[] a message state
+        # @param [Array] api_keys an array of api keys to narrow the export to; messsagse sent with ANY of the keys will be included
+        #     - [String] api_keys[] an API key associated with your account
         # @return [Hash] information about the activity export job that was started
         #     - [String] id the unique identifier for this Export. Use this identifier when checking the export job's status
         #     - [String] created_at the date and time that the export job was created as a UTC string in YYYY-MM-DD HH:MM:SS format
@@ -281,8 +283,8 @@ module Mandrill
         #     - [String] finished_at the date and time that the export job was finished as a UTC string in YYYY-MM-DD HH:MM:SS format, or null for jobs that have not run
         #     - [String] state the export job's state
         #     - [String] result_url the url for the export job's results, if the job is complete
-        def activity(notify_email=nil, date_from=nil, date_to=nil, tags=nil, senders=nil, states=nil)
-            _params = {:notify_email => notify_email, :date_from => date_from, :date_to => date_to, :tags => tags, :senders => senders, :states => states}
+        def activity(notify_email=nil, date_from=nil, date_to=nil, tags=nil, senders=nil, states=nil, api_keys=nil)
+            _params = {:notify_email => notify_email, :date_from => date_from, :date_to => date_to, :tags => tags, :senders => senders, :states => states, :api_keys => api_keys}
             return @master.call 'exports/activity', _params
         end
 
@@ -694,6 +696,7 @@ module Mandrill
         #     - [Boolean] inline_css whether or not to automatically inline all CSS styles provided in the message HTML - only for HTML documents less than 256KB in size
         #     - [Boolean] url_strip_qs whether or not to strip the query string from URLs when aggregating tracked URL data
         #     - [Boolean] preserve_recipients whether or not to expose all recipients in to "To" header for each email
+        #     - [Boolean] view_content_link set to false to remove content logging for sensitive emails
         #     - [String] bcc_address an optional address to receive an exact copy of each recipient's email
         #     - [String] tracking_domain a custom domain to use for tracking opens and clicks instead of mandrillapp.com
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
@@ -769,6 +772,7 @@ module Mandrill
         #     - [Boolean] inline_css whether or not to automatically inline all CSS styles provided in the message HTML - only for HTML documents less than 256KB in size
         #     - [Boolean] url_strip_qs whether or not to strip the query string from URLs when aggregating tracked URL data
         #     - [Boolean] preserve_recipients whether or not to expose all recipients in to "To" header for each email
+        #     - [Boolean] view_content_link set to false to remove content logging for sensitive emails
         #     - [String] bcc_address an optional address to receive an exact copy of each recipient's email
         #     - [String] tracking_domain a custom domain to use for tracking opens and clicks instead of mandrillapp.com
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
@@ -825,6 +829,7 @@ module Mandrill
         # @param [String] date_to end date
         # @param [Array] tags an array of tag names to narrow the search to, will return messages that contain ANY of the tags
         # @param [Array] senders an array of sender addresses to narrow the search to, will return messages sent by ANY of the senders
+        # @param [Array] api_keys an array of API keys to narrow the search to, will return messages sent by ANY of the keys
         # @param [Integer] limit the maximum number of results to return, defaults to 100, 1000 is the maximum
         # @return [Array] of structs for each matching message
         #     - [Hash] return[] the information for a single matching message
@@ -858,8 +863,8 @@ module Mandrill
         #             - [Integer] ts the Unix timestamp when the event occured
         #             - [String] type the message's state as a result of this event
         #             - [String] diag the SMTP response from the recipient's server
-        def search(query='*', date_from=nil, date_to=nil, tags=nil, senders=nil, limit=100)
-            _params = {:query => query, :date_from => date_from, :date_to => date_to, :tags => tags, :senders => senders, :limit => limit}
+        def search(query='*', date_from=nil, date_to=nil, tags=nil, senders=nil, api_keys=nil, limit=100)
+            _params = {:query => query, :date_from => date_from, :date_to => date_to, :tags => tags, :senders => senders, :api_keys => api_keys, :limit => limit}
             return @master.call 'messages/search', _params
         end
 
@@ -954,7 +959,7 @@ module Mandrill
             return @master.call 'messages/parse', _params
         end
 
-        # Take a raw MIME document for a message, and send it exactly as if it were sent over the SMTP protocol
+        # Take a raw MIME document for a message, and send it exactly as if it were sent through Mandrill's SMTP servers
         # @param [String] raw_message the full MIME document of an email message
         # @param [String, nil] from_email optionally define the sender address - otherwise we'll use the address found in the provided headers
         # @param [String, nil] from_name optionally define the sender alias
@@ -1411,9 +1416,74 @@ module Mandrill
         #     - [Hash] return[] the information on each sending domain for the account
         #         - [String] domain the sender domain name
         #         - [String] created_at the date and time that the sending domain was first seen as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [Hash] spf details about the domain's SPF record
+        #             - [Boolean] valid whether the domain's SPF record is valid for use with Mandrill
+        #             - [String] valid_after when the domain's SPF record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #             - [String] error an error describing the spf record, or null if the record is correct
+        #         - [Hash] dkim details about the domain's DKIM record
+        #             - [Boolean] valid whether the domain's DKIM record is valid for use with Mandrill
+        #             - [String] valid_after when the domain's DKIM record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #             - [String] error an error describing the DKIM record, or null if the record is correct
+        #         - [String] verified_at if the domain has been verified, this indicates when that verification occurred as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [Boolean] valid_signing whether this domain can be used to authenticate mail, either for itself or as a custom signing domain. If this is false but spf and dkim are both valid, you will need to verify the domain before using it to authenticate mail
         def domains()
             _params = {}
             return @master.call 'senders/domains', _params
+        end
+
+        # Adds a sender domain to your account. Sender domains are added automatically as you send, but you can use this call to add them ahead of time.
+        # @param [String] domain a domain name
+        # @return [Hash] information about the domain
+        #     - [String] domain the sender domain name
+        #     - [String] created_at the date and time that the sending domain was first seen as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Hash] spf details about the domain's SPF record
+        #         - [Boolean] valid whether the domain's SPF record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's SPF record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the spf record, or null if the record is correct
+        #     - [Hash] dkim details about the domain's DKIM record
+        #         - [Boolean] valid whether the domain's DKIM record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's DKIM record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the DKIM record, or null if the record is correct
+        #     - [String] verified_at if the domain has been verified, this indicates when that verification occurred as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Boolean] valid_signing whether this domain can be used to authenticate mail, either for itself or as a custom signing domain. If this is false but spf and dkim are both valid, you will need to verify the domain before using it to authenticate mail
+        def add_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'senders/add-domain', _params
+        end
+
+        # Checks the SPF and DKIM settings for a domain. If you haven't already added this domain to your account, it will be added automatically.
+        # @param [String] domain a domain name
+        # @return [Hash] information about the sender domain
+        #     - [String] domain the sender domain name
+        #     - [String] created_at the date and time that the sending domain was first seen as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Hash] spf details about the domain's SPF record
+        #         - [Boolean] valid whether the domain's SPF record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's SPF record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the spf record, or null if the record is correct
+        #     - [Hash] dkim details about the domain's DKIM record
+        #         - [Boolean] valid whether the domain's DKIM record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's DKIM record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the DKIM record, or null if the record is correct
+        #     - [String] verified_at if the domain has been verified, this indicates when that verification occurred as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Boolean] valid_signing whether this domain can be used to authenticate mail, either for itself or as a custom signing domain. If this is false but spf and dkim are both valid, you will need to verify the domain before using it to authenticate mail
+        def check_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'senders/check-domain', _params
+        end
+
+        # Sends a verification email in order to verify ownership of a domain. Domain verification is an optional step to confirm ownership of a domain. Once a domain has been verified in a Mandrill account, other accounts may not have their messages signed by that domain unless they also verify the domain. This prevents other Mandrill accounts from sending mail signed by your domain.
+        # @param [String] domain a domain name at which you can receive email
+        # @param [String] mailbox a mailbox at the domain where the verification email should be sent
+        # @return [Hash] information about the verification that was sent
+        #     - [String] status "sent" indicates that the verification has been sent, "already_verified" indicates that the domain has already been verified with your account
+        #     - [String] domain the domain name you provided
+        #     - [String] email the email address the verification email was sent to
+        def verify_domain(domain, mailbox)
+            _params = {:domain => domain, :mailbox => mailbox}
+            return @master.call 'senders/verify-domain', _params
         end
 
         # Return more detailed information about a single sender, including aggregates of recent stats
