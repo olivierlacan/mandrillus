@@ -31,5 +31,17 @@ module Mandrill
     end
     class UnknownExportError < Error
     end
+    class IPProvisionLimitError < Error
+    end
+    class UnknownPoolError < Error
+    end
+    class UnknownIPError < Error
+    end
+    class InvalidEmptyDefaultPoolError < Error
+    end
+    class InvalidDeleteDefaultPoolError < Error
+    end
+    class InvalidDeleteNonEmptyPoolError < Error
+    end
 end
 

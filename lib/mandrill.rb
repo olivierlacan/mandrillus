@@ -66,7 +66,13 @@ module Mandrill
                 'Invalid_Template' => InvalidTemplateError,
                 'Unknown_Webhook' => UnknownWebhookError,
                 'Unknown_InboundDomain' => UnknownInboundDomainError,
-                'Unknown_Export' => UnknownExportError
+                'Unknown_Export' => UnknownExportError,
+                'IP_ProvisionLimit' => IPProvisionLimitError,
+                'Unknown_Pool' => UnknownPoolError,
+                'Unknown_IP' => UnknownIPError,
+                'Invalid_EmptyDefaultPool' => InvalidEmptyDefaultPoolError,
+                'Invalid_DeleteDefaultPool' => InvalidDeleteDefaultPoolError,
+                'Invalid_DeleteNonEmptyPool' => InvalidDeleteNonEmptyPoolError
             }
 
             begin
@@ -107,6 +113,9 @@ module Mandrill
         end
         def whitelists()
             Whitelists.new self
+        end
+        def ips()
+            Ips.new self
         end
         def internal()
             Internal.new self
