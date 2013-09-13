@@ -1282,6 +1282,38 @@ module Mandrill
             return @master.call 'ips/delete-pool', _params
         end
 
+        # Tests whether a domain name is valid for use as the custom reverse DNS for a dedicated IP.
+        # @param [String] ip a dedicated ip address
+        # @param [String] domain the domain name to test
+        # @return [Hash] validation results for the domain
+        #     - [String] valid whether the domain name has a correctly-configured A record pointing to the ip address
+        #     - [String] error if valid is false, this will contain details about why the domain's A record is incorrect
+        def check_custom_dns(ip, domain)
+            _params = {:ip => ip, :domain => domain}
+            return @master.call 'ips/check-custom-dns', _params
+        end
+
+        # Configures the custom DNS name for a dedicated IP.
+        # @param [String] ip a dedicated ip address
+        # @param [String] domain a domain name to set as the dedicated IP's custom dns name.
+        # @return [Hash] information about the dedicated IP's new configuration
+        #     - [String] ip the ip address
+        #     - [String] created_at the date and time that the dedicated IP was created as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [String] pool the name of the pool that this dedicated IP belongs to
+        #     - [String] domain the domain name (reverse dns) of this dedicated IP
+        #     - [Hash] custom_dns information about the ip's custom dns, if it has been configured
+        #         - [Boolean] enabled a boolean indicating whether custom dns has been configured for this ip
+        #         - [Boolean] valid whether the ip's custom dns is currently valid
+        #         - [String] error if the ip's custom dns is invalid, this will include details about the error
+        #     - [Hash] warmup information about the ip's warmup status
+        #         - [Boolean] warming_up whether the ip is currently in warmup mode
+        #         - [String] start_at the start time for the warmup process as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [String] end_at the end date and time for the warmup process as a UTC string in YYYY-MM-DD HH:MM:SS format
+        def set_custom_dns(ip, domain)
+            _params = {:ip => ip, :domain => domain}
+            return @master.call 'ips/set-custom-dns', _params
+        end
+
     end
     class Internal
         attr_accessor :master
