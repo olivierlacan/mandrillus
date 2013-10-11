@@ -16,9 +16,13 @@ module Mandrill
         # @param [String] code the HTML code for the template with mc:edit attributes for the editable elements
         # @param [String] text a default text part to be used when sending with this template
         # @param [Boolean] publish set to false to add a draft template without publishing
+        # @param [Array] labels an optional array of up to 10 labels to use for filtering templates
+        #     - [String] labels[] a single label
         # @return [Hash] the information saved about the new template
         #     - [String] slug the immutable unique code name of the template
         #     - [String] name the name of the template
+        #     - [Array] labels the list of labels applied to the template
+        #         - [String] labels[] a single label
         #     - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #     - [String] subject the subject line of the template, if provided - draft version
         #     - [String] from_email the default sender address for the template, if provided - draft version
@@ -33,8 +37,8 @@ module Mandrill
         #     - [String] published_at the date and time the template was last published as a UTC string in YYYY-MM-DD HH:MM:SS format, or null if it has not been published
         #     - [String] created_at the date and time the template was first created as a UTC string in YYYY-MM-DD HH:MM:SS format
         #     - [String] updated_at the date and time the template was last modified as a UTC string in YYYY-MM-DD HH:MM:SS format
-        def add(name, from_email=nil, from_name=nil, subject=nil, code=nil, text=nil, publish=true)
-            _params = {:name => name, :from_email => from_email, :from_name => from_name, :subject => subject, :code => code, :text => text, :publish => publish}
+        def add(name, from_email=nil, from_name=nil, subject=nil, code=nil, text=nil, publish=true, labels=[])
+            _params = {:name => name, :from_email => from_email, :from_name => from_name, :subject => subject, :code => code, :text => text, :publish => publish, :labels => labels}
             return @master.call 'templates/add', _params
         end
 
@@ -43,6 +47,8 @@ module Mandrill
         # @return [Hash] the requested template information
         #     - [String] slug the immutable unique code name of the template
         #     - [String] name the name of the template
+        #     - [Array] labels the list of labels applied to the template
+        #         - [String] labels[] a single label
         #     - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #     - [String] subject the subject line of the template, if provided - draft version
         #     - [String] from_email the default sender address for the template, if provided - draft version
@@ -70,9 +76,13 @@ module Mandrill
         # @param [String] code the new code for the template
         # @param [String] text the new default text part to be used
         # @param [Boolean] publish set to false to update the draft version of the template without publishing
+        # @param [Array] labels an optional array of up to 10 labels to use for filtering templates
+        #     - [String] labels[] a single label
         # @return [Hash] the template that was updated
         #     - [String] slug the immutable unique code name of the template
         #     - [String] name the name of the template
+        #     - [Array] labels the list of labels applied to the template
+        #         - [String] labels[] a single label
         #     - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #     - [String] subject the subject line of the template, if provided - draft version
         #     - [String] from_email the default sender address for the template, if provided - draft version
@@ -87,8 +97,8 @@ module Mandrill
         #     - [String] published_at the date and time the template was last published as a UTC string in YYYY-MM-DD HH:MM:SS format, or null if it has not been published
         #     - [String] created_at the date and time the template was first created as a UTC string in YYYY-MM-DD HH:MM:SS format
         #     - [String] updated_at the date and time the template was last modified as a UTC string in YYYY-MM-DD HH:MM:SS format
-        def update(name, from_email=nil, from_name=nil, subject=nil, code=nil, text=nil, publish=true)
-            _params = {:name => name, :from_email => from_email, :from_name => from_name, :subject => subject, :code => code, :text => text, :publish => publish}
+        def update(name, from_email=nil, from_name=nil, subject=nil, code=nil, text=nil, publish=true, labels=nil)
+            _params = {:name => name, :from_email => from_email, :from_name => from_name, :subject => subject, :code => code, :text => text, :publish => publish, :labels => labels}
             return @master.call 'templates/update', _params
         end
 
@@ -97,6 +107,8 @@ module Mandrill
         # @return [Hash] the template that was published
         #     - [String] slug the immutable unique code name of the template
         #     - [String] name the name of the template
+        #     - [Array] labels the list of labels applied to the template
+        #         - [String] labels[] a single label
         #     - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #     - [String] subject the subject line of the template, if provided - draft version
         #     - [String] from_email the default sender address for the template, if provided - draft version
@@ -121,6 +133,8 @@ module Mandrill
         # @return [Hash] the template that was deleted
         #     - [String] slug the immutable unique code name of the template
         #     - [String] name the name of the template
+        #     - [Array] labels the list of labels applied to the template
+        #         - [String] labels[] a single label
         #     - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #     - [String] subject the subject line of the template, if provided - draft version
         #     - [String] from_email the default sender address for the template, if provided - draft version
@@ -141,10 +155,13 @@ module Mandrill
         end
 
         # Return a list of all the templates available to this user
+        # @param [String] label an optional label to filter the templates
         # @return [Array] an array of structs with information about each template
         #     - [Hash] return[] the information on each template in the account
         #         - [String] slug the immutable unique code name of the template
         #         - [String] name the name of the template
+        #         - [Array] labels the list of labels applied to the template
+        #             - [String] labels[] a single label
         #         - [String] code the full HTML code of the template, with mc:edit attributes marking the editable elements - draft version
         #         - [String] subject the subject line of the template, if provided - draft version
         #         - [String] from_email the default sender address for the template, if provided - draft version
@@ -159,8 +176,8 @@ module Mandrill
         #         - [String] published_at the date and time the template was last published as a UTC string in YYYY-MM-DD HH:MM:SS format, or null if it has not been published
         #         - [String] created_at the date and time the template was first created as a UTC string in YYYY-MM-DD HH:MM:SS format
         #         - [String] updated_at the date and time the template was last modified as a UTC string in YYYY-MM-DD HH:MM:SS format
-        def list()
-            _params = {}
+        def list(label=nil)
+            _params = {:label => label}
             return @master.call 'templates/list', _params
         end
 
@@ -486,15 +503,86 @@ module Mandrill
             return @master.call 'inbound/domains', _params
         end
 
+        # Add an inbound domain to your account
+        # @param [String] domain a domain name
+        # @return [Hash] information about the domain
+        #     - [String] domain the domain name that is accepting mail
+        #     - [String] created_at the date and time that the inbound domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Boolean] valid_mx true if this inbound domain has successfully set up an MX record to deliver mail to the Mandrill servers
+        def add_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'inbound/add-domain', _params
+        end
+
+        # Check the MX settings for an inbound domain. The domain must have already been added with the add-domain call
+        # @param [String] domain an existing inbound domain
+        # @return [Hash] information about the inbound domain
+        #     - [String] domain the domain name that is accepting mail
+        #     - [String] created_at the date and time that the inbound domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Boolean] valid_mx true if this inbound domain has successfully set up an MX record to deliver mail to the Mandrill servers
+        def check_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'inbound/check-domain', _params
+        end
+
+        # Delete an inbound domain from the account. All mail will stop routing for this domain immediately.
+        # @param [String] domain an existing inbound domain
+        # @return [Hash] information about the deleted domain
+        #     - [String] domain the domain name that is accepting mail
+        #     - [String] created_at the date and time that the inbound domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Boolean] valid_mx true if this inbound domain has successfully set up an MX record to deliver mail to the Mandrill servers
+        def delete_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'inbound/delete-domain', _params
+        end
+
         # List the mailbox routes defined for an inbound domain
         # @param [String] domain the domain to check
         # @return [Array] the routes associated with the domain
         #     - [Hash] return[] the individual mailbox route
+        #         - [String] id the unique identifier of the route
         #         - [String] pattern the search pattern that the mailbox name should match
         #         - [String] url the webhook URL where inbound messages will be published
         def routes(domain)
             _params = {:domain => domain}
             return @master.call 'inbound/routes', _params
+        end
+
+        # Add a new mailbox route to an inbound domain
+        # @param [String] domain an existing inbound domain
+        # @param [String] pattern the search pattern that the mailbox name should match
+        # @param [String] url the webhook URL where the inbound messages will be published
+        # @return [Hash] the added mailbox route information
+        #     - [String] id the unique identifier of the route
+        #     - [String] pattern the search pattern that the mailbox name should match
+        #     - [String] url the webhook URL where inbound messages will be published
+        def add_route(domain, pattern, url)
+            _params = {:domain => domain, :pattern => pattern, :url => url}
+            return @master.call 'inbound/add-route', _params
+        end
+
+        # Update the pattern or webhook of an existing inbound mailbox route. If null is provided for any fields, the values will remain unchanged.
+        # @param [String] id the unique identifier of an existing mailbox route
+        # @param [String] pattern the search pattern that the mailbox name should match
+        # @param [String] url the webhook URL where the inbound messages will be published
+        # @return [Hash] the updated mailbox route information
+        #     - [String] id the unique identifier of the route
+        #     - [String] pattern the search pattern that the mailbox name should match
+        #     - [String] url the webhook URL where inbound messages will be published
+        def update_route(id, pattern=nil, url=nil)
+            _params = {:id => id, :pattern => pattern, :url => url}
+            return @master.call 'inbound/update-route', _params
+        end
+
+        # Delete an existing inbound mailbox route
+        # @param [String] id the unique identifier of an existing route
+        # @return [Hash] the deleted mailbox route information
+        #     - [String] id the unique identifier of the route
+        #     - [String] pattern the search pattern that the mailbox name should match
+        #     - [String] url the webhook URL where inbound messages will be published
+        def delete_route(id)
+            _params = {:id => id}
+            return @master.call 'inbound/delete-route', _params
         end
 
         # Take a raw MIME document destined for a domain with inbound domains set up, and send it to the inbound hook exactly as if it had been sent over SMTP
@@ -1521,6 +1609,54 @@ module Mandrill
         def time_series(url)
             _params = {:url => url}
             return @master.call 'urls/time-series', _params
+        end
+
+        # Get the list of tracking domains set up for this account
+        # @return [Array] the tracking domains and their status
+        #     - [Hash] return[] the individual tracking domain
+        #         - [String] domain the tracking domain name
+        #         - [String] created_at the date and time that the tracking domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #         - [Hash] cname details about the domain's CNAME record
+        #             - [Boolean] valid whether the domain's CNAME record is valid for use with Mandrill
+        #             - [String] valid_after when the domain's CNAME record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #             - [String] error an error describing the CNAME record, or null if the record is correct
+        #         - [Boolean] valid_tracking whether this domain can be used as a tracking domain for email.
+        def tracking_domains()
+            _params = {}
+            return @master.call 'urls/tracking-domains', _params
+        end
+
+        # Add a tracking domain to your account
+        # @param [String] domain a domain name
+        # @return [Hash] information about the domain
+        #     - [String] domain the tracking domain name
+        #     - [String] created_at the date and time that the tracking domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Hash] cname details about the domain's CNAME record
+        #         - [Boolean] valid whether the domain's CNAME record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's CNAME record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the CNAME record, or null if the record is correct
+        #     - [Boolean] valid_tracking whether this domain can be used as a tracking domain for email.
+        def add_tracking_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'urls/add-tracking-domain', _params
+        end
+
+        # Checks the CNAME settings for a tracking domain. The domain must have been added already with the add-tracking-domain call
+        # @param [String] domain an existing tracking domain name
+        # @return [Hash] information about the tracking domain
+        #     - [String] domain the tracking domain name
+        #     - [String] created_at the date and time that the tracking domain was added as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [String] last_tested_at when the domain's DNS settings were last tested as a UTC string in YYYY-MM-DD HH:MM:SS format
+        #     - [Hash] cname details about the domain's CNAME record
+        #         - [Boolean] valid whether the domain's CNAME record is valid for use with Mandrill
+        #         - [String] valid_after when the domain's CNAME record will be considered valid for use with Mandrill as a UTC string in YYYY-MM-DD HH:MM:SS format. If set, this indicates that the record is valid now, but was previously invalid, and Mandrill will wait until the record's TTL elapses to start using it.
+        #         - [String] error an error describing the CNAME record, or null if the record is correct
+        #     - [Boolean] valid_tracking whether this domain can be used as a tracking domain for email.
+        def check_tracking_domain(domain)
+            _params = {:domain => domain}
+            return @master.call 'urls/check-tracking-domain', _params
         end
 
     end

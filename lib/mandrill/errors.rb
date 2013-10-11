@@ -23,11 +23,15 @@ module Mandrill
     end
     class UnknownUrlError < Error
     end
+    class UnknownTrackingDomainError < Error
+    end
     class InvalidTemplateError < Error
     end
     class UnknownWebhookError < Error
     end
     class UnknownInboundDomainError < Error
+    end
+    class UnknownInboundRouteError < Error
     end
     class UnknownExportError < Error
     end
