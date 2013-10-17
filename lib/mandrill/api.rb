@@ -781,6 +781,7 @@ module Mandrill
         #         - [Hash] to[] a single recipient's information.
         #             - [String] email the email address of the recipient
         #             - [String] name the optional display name to use for the recipient
+        #             - [String] type the header type to use for the recipient, defaults to "to" if not provided
         #     - [Hash] headers optional extra headers to add to the message (most headers are allowed)
         #     - [Boolean] important whether or not this message is important, and should be delivered ahead of non-important messages
         #     - [Boolean] track_opens whether or not to turn on open tracking for the message
@@ -857,6 +858,7 @@ module Mandrill
         #         - [Hash] to[] a single recipient's information.
         #             - [String] email the email address of the recipient
         #             - [String] name the optional display name to use for the recipient
+        #             - [String] type the header type to use for the recipient, defaults to "to" if not provided
         #     - [Hash] headers optional extra headers to add to the message (most headers are allowed)
         #     - [Boolean] important whether or not this message is important, and should be delivered ahead of non-important messages
         #     - [Boolean] track_opens whether or not to turn on open tracking for the message
@@ -931,7 +933,7 @@ module Mandrill
         #         - [String] _id the message's unique id
         #         - [String] sender the email address of the sender
         #         - [String] template the unique name of the template used, if any
-        #         - [String] subject the message's subject link
+        #         - [String] subject the message's subject line
         #         - [String] email the recipient email address
         #         - [Array] tags list of tags on this message
         #             - [String] tags[] individual tag on this message
@@ -993,7 +995,7 @@ module Mandrill
         #     - [String] _id the message's unique id
         #     - [String] sender the email address of the sender
         #     - [String] template the unique name of the template used, if any
-        #     - [String] subject the message's subject link
+        #     - [String] subject the message's subject line
         #     - [String] email the recipient email address
         #     - [Array] tags list of tags on this message
         #         - [String] tags[] individual tag on this message
@@ -1022,6 +1024,32 @@ module Mandrill
         def info(id)
             _params = {:id => id}
             return @master.call 'messages/info', _params
+        end
+
+        # Get the full content of a recently sent message
+        # @param [String] id the unique id of the message to get - passed as the "_id" field in webhooks, send calls, or search calls
+        # @return [Hash] the content of the message
+        #     - [Integer] ts the Unix timestamp from when this message was sent
+        #     - [String] _id the message's unique id
+        #     - [String] from_email the email address of the sender
+        #     - [String] from_name the alias of the sender (if any)
+        #     - [String] subject the message's subject line
+        #     - [Hash] to the message recipient's information
+        #         - [String] email the email address of the recipient
+        #         - [String] name the alias of the recipient (if any)
+        #     - [Array] tags list of tags on this message
+        #         - [String] tags[] individual tag on this message
+        #     - [Hash] headers the key-value pairs of the custom MIME headers for the message's main document
+        #     - [String] text the text part of the message, if any
+        #     - [String] html the HTML part of the message, if any
+        #     - [Array] attachments an array of any attachments that can be found in the message
+        #         - [Hash] attachments[] information about an individual attachment
+        #             - [String] name the file name of the attachment
+        #             - [String] type the MIME type of the attachment
+        #             - [String] content the content of the attachment as a base64 encoded string
+        def content(id)
+            _params = {:id => id}
+            return @master.call 'messages/content', _params
         end
 
         # Parse the full MIME document for an email message, returning the content of the message broken into its constituent pieces
