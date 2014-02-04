@@ -47,5 +47,9 @@ module Mandrill
     end
     class InvalidDeleteNonEmptyPoolError < Error
     end
+    class MetadataFieldLimitError < Error
+    end
+    class UnknownMetadataFieldError < Error
+    end
 end
 

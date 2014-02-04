@@ -74,7 +74,9 @@ module Mandrill
                 'Unknown_IP' => UnknownIPError,
                 'Invalid_EmptyDefaultPool' => InvalidEmptyDefaultPoolError,
                 'Invalid_DeleteDefaultPool' => InvalidDeleteDefaultPoolError,
-                'Invalid_DeleteNonEmptyPool' => InvalidDeleteNonEmptyPoolError
+                'Invalid_DeleteNonEmptyPool' => InvalidDeleteNonEmptyPoolError,
+                'Metadata_FieldLimit' => MetadataFieldLimitError,
+                'Unknown_MetadataField' => UnknownMetadataFieldError
             }
 
             begin
@@ -133,6 +135,9 @@ module Mandrill
         end
         def senders()
             Senders.new self
+        end
+        def metadata()
+            Metadata.new self
         end
     end
 end
