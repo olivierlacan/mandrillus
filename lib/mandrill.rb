@@ -71,10 +71,14 @@ module Mandrill
                 'Unknown_Export' => UnknownExportError,
                 'IP_ProvisionLimit' => IPProvisionLimitError,
                 'Unknown_Pool' => UnknownPoolError,
+                'NoSendingHistory' => NoSendingHistoryError,
+                'PoorReputation' => PoorReputationError,
                 'Unknown_IP' => UnknownIPError,
                 'Invalid_EmptyDefaultPool' => InvalidEmptyDefaultPoolError,
                 'Invalid_DeleteDefaultPool' => InvalidDeleteDefaultPoolError,
                 'Invalid_DeleteNonEmptyPool' => InvalidDeleteNonEmptyPoolError,
+                'Invalid_CustomDNS' => InvalidCustomDNSError,
+                'Invalid_CustomDNSPending' => InvalidCustomDNSPendingError,
                 'Metadata_FieldLimit' => MetadataFieldLimitError,
                 'Unknown_MetadataField' => UnknownMetadataFieldError
             }

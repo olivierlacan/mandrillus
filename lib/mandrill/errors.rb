@@ -39,6 +39,10 @@ module Mandrill
     end
     class UnknownPoolError < Error
     end
+    class NoSendingHistoryError < Error
+    end
+    class PoorReputationError < Error
+    end
     class UnknownIPError < Error
     end
     class InvalidEmptyDefaultPoolError < Error
@@ -46,6 +50,10 @@ module Mandrill
     class InvalidDeleteDefaultPoolError < Error
     end
     class InvalidDeleteNonEmptyPoolError < Error
+    end
+    class InvalidCustomDNSError < Error
+    end
+    class InvalidCustomDNSPendingError < Error
     end
     class MetadataFieldLimitError < Error
     end
