@@ -447,7 +447,7 @@ module Mandrill
         # @return [Array] Up to 1000 rejection entries
         #     - [Hash] return[] the information for each rejection blacklist entry
         #         - [String] email the email that is blocked
-        #         - [String] reason the type of event (hard-bounce, soft-bounce, spam, unsub) that caused this rejection
+        #         - [String] reason the type of event (hard-bounce, soft-bounce, spam, unsub, custom) that caused this rejection
         #         - [String] detail extended details about the event, such as the SMTP diagnostic for bounces or the comment for manually-created rejections
         #         - [String] created_at when the email was added to the blacklist
         #         - [String] last_event_at the timestamp of the most recent event that either created or renewed this rejection
@@ -831,11 +831,11 @@ module Mandrill
         # @param [Boolean] async enable a background sending mode that is optimized for bulk sending. In async mode, messages/send will immediately return a status of "queued" for every recipient. To handle rejections when sending in async mode, set up a webhook for the 'reject' event. Defaults to false for messages with no more than 10 recipients; messages with more than 10 recipients are always sent asynchronously, regardless of the value of async.
         # @param [String] ip_pool the name of the dedicated ip pool that should be used to send the message. If you do not have any dedicated IPs, this parameter has no effect. If you specify a pool that does not exist, your default pool will be used instead.
         # @param [String] send_at when this message should be sent as a UTC timestamp in YYYY-MM-DD HH:MM:SS format. If you specify a time in the past, the message will be sent immediately. An additional fee applies for scheduled email, and this feature is only available to accounts with a positive balance.
-        # @return [Array] of structs for each recipient containing the key "email" with the email address and "status" as either "sent", "queued", or "rejected"
+        # @return [Array] of structs for each recipient containing the key "email" with the email address, and details of the message status for that recipient
         #     - [Hash] return[] the sending results for a single recipient
         #         - [String] email the email address of the recipient
         #         - [String] status the sending status of the recipient - either "sent", "queued", "scheduled", "rejected", or "invalid"
-        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected"
+        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected" - one of "hard-bounce", "soft-bounce", "spam", "unsub", "custom", "invalid-sender", "invalid", "test-mode-limit", or "rule"
         #         - [String] _id the message's unique id
         def send(message, async=false, ip_pool=nil, send_at=nil)
             _params = {:message => message, :async => async, :ip_pool => ip_pool, :send_at => send_at}
@@ -908,19 +908,19 @@ module Mandrill
         # @param [Boolean] async enable a background sending mode that is optimized for bulk sending. In async mode, messages/send will immediately return a status of "queued" for every recipient. To handle rejections when sending in async mode, set up a webhook for the 'reject' event. Defaults to false for messages with no more than 10 recipients; messages with more than 10 recipients are always sent asynchronously, regardless of the value of async.
         # @param [String] ip_pool the name of the dedicated ip pool that should be used to send the message. If you do not have any dedicated IPs, this parameter has no effect. If you specify a pool that does not exist, your default pool will be used instead.
         # @param [String] send_at when this message should be sent as a UTC timestamp in YYYY-MM-DD HH:MM:SS format. If you specify a time in the past, the message will be sent immediately. An additional fee applies for scheduled email, and this feature is only available to accounts with a positive balance.
-        # @return [Array] of structs for each recipient containing the key "email" with the email address and "status" as either "sent", "queued", "scheduled", or "rejected"
+        # @return [Array] of structs for each recipient containing the key "email" with the email address, and details of the message status for that recipient
         #     - [Hash] return[] the sending results for a single recipient
         #         - [String] email the email address of the recipient
         #         - [String] status the sending status of the recipient - either "sent", "queued", "rejected", or "invalid"
-        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected"
+        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected" - one of "hard-bounce", "soft-bounce", "spam", "unsub", "custom", "invalid-sender", "invalid", "test-mode-limit", or "rule"
         #         - [String] _id the message's unique id
         def send_template(template_name, template_content, message, async=false, ip_pool=nil, send_at=nil)
             _params = {:template_name => template_name, :template_content => template_content, :message => message, :async => async, :ip_pool => ip_pool, :send_at => send_at}
             return @master.call 'messages/send-template', _params
         end
 
-        # Search the content of recently sent messages and optionally narrow by date range, tags and senders
-        # @param [String] query the search terms to find matching messages for
+        # Search recently sent messages and optionally narrow by date range, tags, senders, and API keys. If no date range is specified, results within the last 7 days are returned. This method may be called up to 20 times per minute. If you need the data more often, you can use <a href="/api/docs/messages.html#method=info">/messages/info.json</a> to get the information for a single message, or <a href="http://help.mandrill.com/entries/21738186-Introduction-to-Webhooks">webhooks</a> to push activity to your own application for querying.
+        # @param [String] query <a href="http://help.mandrill.com/entries/22211902">search terms</a> to find matching messages
         # @param [String] date_from start date
         # @param [String] date_to end date
         # @param [Array] tags an array of tag names to narrow the search to, will return messages that contain ANY of the tags
@@ -1091,11 +1091,11 @@ module Mandrill
         # @param [String] ip_pool the name of the dedicated ip pool that should be used to send the message. If you do not have any dedicated IPs, this parameter has no effect. If you specify a pool that does not exist, your default pool will be used instead.
         # @param [String] send_at when this message should be sent as a UTC timestamp in YYYY-MM-DD HH:MM:SS format. If you specify a time in the past, the message will be sent immediately.
         # @param [String] return_path_domain a custom domain to use for the messages's return-path
-        # @return [Array] of structs for each recipient containing the key "email" with the email address and "status" as either "sent", "queued", or "rejected"
+        # @return [Array] of structs for each recipient containing the key "email" with the email address, and details of the message status for that recipient
         #     - [Hash] return[] the sending results for a single recipient
         #         - [String] email the email address of the recipient
         #         - [String] status the sending status of the recipient - either "sent", "queued", "scheduled", "rejected", or "invalid"
-        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected"
+        #         - [String] reject_reason the reason for the rejection if the recipient status is "rejected" - one of "hard-bounce", "soft-bounce", "spam", "unsub", "custom", "invalid-sender", "invalid", "test-mode-limit", or "rule"
         #         - [String] _id the message's unique id
         def send_raw(raw_message, from_email=nil, from_name=nil, to=nil, async=false, ip_pool=nil, send_at=nil, return_path_domain=nil)
             _params = {:raw_message => raw_message, :from_email => from_email, :from_name => from_name, :to => to, :async => async, :ip_pool => ip_pool, :send_at => send_at, :return_path_domain => return_path_domain}
@@ -1156,11 +1156,12 @@ module Mandrill
 
         # Adds an email to your email rejection whitelist. If the address is currently on your blacklist, that blacklist entry will be removed automatically.
         # @param [String] email an email address to add to the whitelist
+        # @param [String] comment an optional description of why the email was whitelisted
         # @return [Hash] a status object containing the address and the result of the operation
         #     - [String] email the email address you provided
-        #     - [Boolean] whether the operation succeeded
-        def add(email)
-            _params = {:email => email}
+        #     - [Boolean] added whether the operation succeeded
+        def add(email, comment=nil)
+            _params = {:email => email, :comment => comment}
             return @master.call 'whitelists/add', _params
         end
 
