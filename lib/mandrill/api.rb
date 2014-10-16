@@ -797,17 +797,18 @@ module Mandrill
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
         #     - [String] return_path_domain a custom domain to use for the messages's return-path
         #     - [Boolean] merge whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
+        #     - [String] merge_language the merge tag language to use when evaluating merge tags, either mailchimp or handlebars
         #     - [Array] global_merge_vars global merge variables to use for all recipients. You can override these per recipient.
         #         - [Hash] global_merge_vars[] a single global merge variable
         #             - [String] name the global merge variable's name. Merge variable names are case-insensitive and may not start with _
-        #             - [String] content the global merge variable's content
+        #             - [Mixed] content the global merge variable's content
         #     - [Array] merge_vars per-recipient merge variables, which override global merge variables with the same name.
         #         - [Hash] merge_vars[] per-recipient merge variables
         #             - [String] rcpt the email address of the recipient that the merge variables should apply to
         #             - [Array] vars the recipient's merge variables
         #                 - [Hash] vars[] a single merge variable
         #                     - [String] name the merge variable's name. Merge variable names are case-insensitive and may not start with _
-        #                     - [String] content the merge variable's content
+        #                     - [Mixed] content the merge variable's content
         #     - [Array] tags an array of string to tag the message with.  Stats are accumulated using tags, though we only store the first 100 we see, so this should not be unique or change frequently.  Tags should be 50 characters or less.  Any tags starting with an underscore are reserved for internal use and will cause errors.
         #         - [String] tags[] a single tag - must not start with an underscore
         #     - [String] subaccount the unique id of a subaccount for this message - must already exist or will fail with an error
@@ -874,17 +875,18 @@ module Mandrill
         #     - [String] signing_domain a custom domain to use for SPF/DKIM signing instead of mandrill (for "via" or "on behalf of" in email clients)
         #     - [String] return_path_domain a custom domain to use for the messages's return-path
         #     - [Boolean] merge whether to evaluate merge tags in the message. Will automatically be set to true if either merge_vars or global_merge_vars are provided.
+        #     - [String] merge_language the merge tag language to use when evaluating merge tags, either mailchimp or handlebars
         #     - [Array] global_merge_vars global merge variables to use for all recipients. You can override these per recipient.
         #         - [Hash] global_merge_vars[] a single global merge variable
         #             - [String] name the global merge variable's name. Merge variable names are case-insensitive and may not start with _
-        #             - [String] content the global merge variable's content
+        #             - [Mixed] content the global merge variable's content
         #     - [Array] merge_vars per-recipient merge variables, which override global merge variables with the same name.
         #         - [Hash] merge_vars[] per-recipient merge variables
         #             - [String] rcpt the email address of the recipient that the merge variables should apply to
         #             - [Array] vars the recipient's merge variables
         #                 - [Hash] vars[] a single merge variable
         #                     - [String] name the merge variable's name. Merge variable names are case-insensitive and may not start with _
-        #                     - [String] content the merge variable's content
+        #                     - [Mixed] content the merge variable's content
         #     - [Array] tags an array of string to tag the message with.  Stats are accumulated using tags, though we only store the first 100 we see, so this should not be unique or change frequently.  Tags should be 50 characters or less.  Any tags starting with an underscore are reserved for internal use and will cause errors.
         #         - [String] tags[] a single tag - must not start with an underscore
         #     - [String] subaccount the unique id of a subaccount for this message - must already exist or will fail with an error
