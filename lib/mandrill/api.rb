@@ -1104,7 +1104,7 @@ module Mandrill
             return @master.call 'messages/send-raw', _params
         end
 
-        # Queries your scheduled emails by sender or recipient, or both.
+        # Queries your scheduled emails.
         # @param [String] to an optional recipient address to restrict results to
         # @return [Array] a list of up to 1000 scheduled emails
         #     - [Hash] return[] a scheduled email
@@ -1891,7 +1891,7 @@ module Mandrill
             return @master.call 'senders/check-domain', _params
         end
 
-        # Sends a verification email in order to verify ownership of a domain. Domain verification is an optional step to confirm ownership of a domain. Once a domain has been verified in a Mandrill account, other accounts may not have their messages signed by that domain unless they also verify the domain. This prevents other Mandrill accounts from sending mail signed by your domain.
+        # Sends a verification email in order to verify ownership of a domain. Domain verification is a required step to confirm ownership of a domain. Once a domain has been verified in a Mandrill account, other accounts may not have their messages signed by that domain unless they also verify the domain. This prevents other Mandrill accounts from sending mail signed by your domain.
         # @param [String] domain a domain name at which you can receive email
         # @param [String] mailbox a mailbox at the domain where the verification email should be sent
         # @return [Hash] information about the verification that was sent
