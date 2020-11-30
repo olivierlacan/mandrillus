@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
     s.name = 'mandrillus'
     s.version = '2.0.0'
-    s.summary = 'A fork of the official Ruby API library for the Mandrillus email as a service platform.'
+    s.summary = 'A fork of the official Ruby API library for the Mandrill email as a service platform.'
     s.description = s.summary
     s.authors = ['Olivier Lacan']
     s.email = ['hi@olivierlacan.com']

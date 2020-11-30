@@ -1,10 +1,14 @@
 Copyright 2013 The Rocket Science Group, LLC.
 
+Since this project was forked, any changes after version 1.0.54 may also fall
+under copyright 2018-2020 Olivier Lacan. See version history for any such
+changes: https://github.com/olivierlacan/mandrillus/compare/1.0.54..master
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
