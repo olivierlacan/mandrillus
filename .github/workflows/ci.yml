@@ -66,5 +66,5 @@ jobs:
         run: gem build mandrillus.gemspec
       - name: Install the built gem and load it
         run: |
-          gem install --local ./mandrillus-*.gem
+          gem install ./mandrillus-*.gem
           ruby -e 'require "mandrill"; Mandrill::API.new("key").users or abort'
