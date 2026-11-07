@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_call: # reused by release.yml so a release can't skip the tests
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Ruby ${{ matrix.ruby }} / excon ${{ matrix.excon }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Supported Ruby branches: https://www.ruby-lang.org/en/downloads/branches/
+        ruby: ["3.3", "3.4", "4.0"]
+        # "latest" resolves to the newest excon the gemspec allows;
+        # "oldest" pins the gemspec's lower bound.
+        excon: [latest, oldest]
+        experimental: [false]
+        include:
+          - ruby: head
+            excon: latest
+            experimental: true
+    env:
+      EXCON_VERSION: ${{ matrix.excon == 'oldest' && '= 0.16.0' || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Show resolved dependencies
+        run: bundle list
+      - name: Run tests
+        run: bundle exec rake test
+
+  build:
+    name: Build gem
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          ruby-version: "4.0"
+      - name: Build with warnings treated as errors
+        run: gem build --strict mandrillus.gemspec
+      - name: Install the built gem and load it
+        run: |
+          gem install --local ./mandrillus-*.gem
+          ruby -e 'require "mandrill"; Mandrill::API.new("key").users or abort'
