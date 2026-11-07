@@ -34,8 +34,8 @@ class HTTPTest < MandrillTest
 
   def client
     api = Mandrill::API.new("live-key")
-    proxy_vars = ENV.keys.grep(/\A(https?|no)_proxy\z/i)
-    saved = proxy_vars.to_h { |k| [k, ENV.delete(k)] }
+    saved = {}
+    ENV.keys.grep(/\A(https?|no)_proxy\z/i).each { |k| saved[k] = ENV.delete(k) }
     api.session = Excon.new("http://127.0.0.1:#{@server.addr[1]}")
     api
   ensure

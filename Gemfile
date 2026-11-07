@@ -4,8 +4,9 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "minitest", ">= 5.20"
-gem "rake", ">= 13.0"
+# Unpinned so Bundler can pick versions that still run on old Rubies.
+gem "minitest", ">= 5.0"
+gem "rake"
 
 # CI can pin excon to check the oldest/newest versions the gemspec allows,
 # e.g. EXCON_VERSION="~> 0.16.0" bundle install

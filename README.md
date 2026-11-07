@@ -9,6 +9,8 @@ for the Mandrill email as a service platform.
 
 ## Development
 
+Supported on Ruby 2.3 and newer; CI tests every minor release from 2.3 to 4.0.
+
 ```sh
 bundle install
 bundle exec rake test

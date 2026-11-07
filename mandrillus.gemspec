@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
     s.files = ['lib/mandrill.rb', 'lib/mandrill/api.rb', 'lib/mandrill/errors.rb',
                'LICENSE', 'COPYRIGHT', 'README.md', 'CHANGELOG.md']
     s.homepage = 'https://github.com/olivierlacan/mandrillus/'
-    s.required_ruby_version = '>= 3.3'
+    s.required_ruby_version = '>= 2.3'
     s.metadata = {
         'source_code_uri' => 'https://github.com/olivierlacan/mandrillus',
         'changelog_uri' => 'https://github.com/olivierlacan/mandrillus/blob/master/CHANGELOG.md',

@@ -8,7 +8,7 @@ class MandrillTest < Minitest::Test
   def setup
     Excon.defaults[:mock] = true
     @requests = []
-    @saved_env = ENV.to_h.slice("MANDRILL_APIKEY", "HOME")
+    @saved_env = { "MANDRILL_APIKEY" => ENV["MANDRILL_APIKEY"], "HOME" => ENV["HOME"] }
   end
 
   def teardown
