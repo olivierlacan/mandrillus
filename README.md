@@ -9,7 +9,8 @@ for the Mandrill email as a service platform.
 
 ## Development
 
-Supported on Ruby 2.3 and newer; CI tests every minor release from 2.3 to 4.0.
+CI tests every minor Ruby release from 2.3 to 4.0. The gemspec declares no
+minimum Ruby version, so nothing older is excluded.
 
 ```sh
 bundle install

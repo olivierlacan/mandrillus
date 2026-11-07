@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Subclass StandardError instead of Exception ([PR](https://github.com/olivierlacan/mandrillus/pull/1))
 for Mandrill::Error.
-- Declare Ruby 2.3 as the minimum supported version (the oldest one tested in CI).
 - Ship LICENSE, COPYRIGHT, README and CHANGELOG in the packaged gem.
 
 ### Added
