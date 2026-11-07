@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_call: # reused by release.yml so a release can't skip the tests
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Ruby ${{ matrix.ruby }} / excon ${{ matrix.excon }}
+    # Pinned: ubuntu-26.04 (the next ubuntu-latest) only has Ruby 3.2+ builds.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every minor release setup-ruby reliably provides, oldest to newest.
+        # Still-maintained branches: https://www.ruby-lang.org/en/downloads/branches/
+        ruby: ["2.3", "2.4", "2.5", "2.6", "2.7", "3.0", "3.1", "3.2", "3.3", "3.4", "4.0"]
+        # "latest" resolves to the newest excon the gemspec allows;
+        # "oldest" pins the gemspec's lower bound.
+        excon: [latest, oldest]
+        experimental: [false]
+        include:
+          - ruby: head
+            excon: latest
+            experimental: true
+    env:
+      EXCON_VERSION: ${{ matrix.excon == 'oldest' && '= 0.16.0' || '' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Show resolved dependencies
+        run: bundle list
+      - name: Run tests
+        run: bundle exec rake test
+
+  build:
+    name: Build gem
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          ruby-version: "4.0"
+      # Not --strict: that also fails on the missing required_ruby_version,
+      # which is left unset on purpose so no Ruby version is excluded.
+      - name: Build gem
+        run: gem build mandrillus.gemspec
+      - name: Install the built gem and load it
+        run: |
+          gem install ./mandrillus-*.gem
+          ruby -e 'require "mandrill"; Mandrill::API.new("key").users or abort'

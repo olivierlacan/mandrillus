@@ -1,0 +1,58 @@
+name: Release
+
+# Publishes to RubyGems.org when a version tag is pushed, e.g.:
+#   git tag v2.0.1 && git push origin v2.0.1
+# The tag must match the version in mandrillus.gemspec.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    name: Publish to RubyGems.org
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Add protection rules (required reviewers, tag pattern) to this
+    # environment in Settings > Environments and store the key there.
+    environment:
+      name: rubygems
+      url: https://rubygems.org/gems/mandrillus
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          ruby-version: "4.0"
+      - name: Check tag matches gemspec version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(ruby -e 'puts Gem::Specification.load("mandrillus.gemspec").version')
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Tag $TAG does not match gemspec version $version (expected v$version)"
+            exit 1
+          fi
+      - name: Build gem
+        run: gem build mandrillus.gemspec
+      - name: Push to RubyGems.org
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
+          if [ -z "$GEM_HOST_API_KEY" ]; then
+            echo "::error::RUBYGEMS_API_KEY secret is not set"
+            exit 1
+          fi
+          gem push mandrillus-*.gem
